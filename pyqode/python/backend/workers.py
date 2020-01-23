@@ -245,6 +245,7 @@ def run_pyflakes(request_data):
     return ret_val
 
 
+ICON_PATH = ('path', ':/pyqode_python_icons/rc/path.png')
 ICON_CLASS = ('code-class', ':/pyqode_python_icons/rc/class.png')
 ICON_FUNC = ('code-function', ':/pyqode_python_icons/rc/func.png')
 ICON_FUNC_PRIVATE = ('code-function', ':/pyqode_python_icons/rc/func_priv.png')
@@ -266,6 +267,7 @@ def icon_from_typename(name, icon_type):
     :returns: The associate icon resource filename or None.
     """
     ICONS = {
+        'PATH': ICON_PATH,
         'CLASS': ICON_CLASS,
         'IMPORT': ICON_NAMESPACE,
         'STATEMENT': ICON_VAR,

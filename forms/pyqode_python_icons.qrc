@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/pyqode_python_icons">
+        <file>rc/path.png</file>
         <file>rc/class.png</file>
         <file>rc/func.png</file>
         <file>rc/keyword.png</file>
