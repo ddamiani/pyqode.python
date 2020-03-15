@@ -46,7 +46,12 @@ def calltips(request_data):
         # bug elsewhere in PyQode, but this at least suppresses the error
         # message, and does not seem to hve any adverse side effects.
         return []
-    signatures = script.call_signatures()
+    try:
+        signatures = script.call_signatures()
+    except ValueError:
+        # Similar to the message above. Apparently some errors occur only at
+        # this point.
+        return []
     for sig in signatures:
         results = (str(sig.module_name), str(sig.name),
                    [p.description for p in sig.params], sig.index,
