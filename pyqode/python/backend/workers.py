@@ -331,8 +331,7 @@ class JediCompletionProvider:
         try:
             script = jedi.Script(code, line + 1, column, path, encoding)
             completions = script.completions()
-            print('completions: %r' % completions)
-        except RuntimeError:
+        except (RuntimeError, TypeError):
             completions = []
         for completion in completions:
             ret_val.append({
