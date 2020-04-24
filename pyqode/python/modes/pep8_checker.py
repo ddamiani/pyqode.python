@@ -11,4 +11,4 @@ class PEP8CheckerMode(CheckerMode):
     This checker mode runs pep8.py on the fly to check your python style.
     """
     def __init__(self):
-        CheckerMode.__init__(self, run_pep8)
+        CheckerMode.__init__(self, run_pep8, underline=False)
