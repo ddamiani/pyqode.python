@@ -7,7 +7,8 @@ autoindent, code linting,...).
 from .autocomplete import PyAutoCompleteMode
 from .autoindent import PyAutoIndentMode
 from .calltips import CalltipsMode
-from .comments import CommentsMode
+# Has been moved to pyqode.core
+from pyqode.core.modes.comments import CommentsMode
 from .frosted_checker import PyFlakesChecker
 # for backward compatibility, will be removed in a future release
 from .frosted_checker import PyFlakesChecker as FrostedCheckerMode
