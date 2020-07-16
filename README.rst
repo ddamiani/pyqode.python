@@ -1,24 +1,22 @@
-
-
-**Bugfix maintenance only**
-
 .. image:: https://raw.githubusercontent.com/pyQode/pyQode/master/media/pyqode-banner.png
 
 
 About
 -----
 
-This is a fork of PyQode, which is now developed as the editor component for Rapunzel and OpenSesame. The original PyQode repository (<= v2) is no longer maintained.
+This is a fork of PyQode, which is now developed as the editor component for Rapunzel_ and OpenSesame_. The original PyQode repository (<= v2) is no longer maintained.
 
-*pyqode.python* adds **python** support to `pyQode`_ (code completion,
+*pyqode.python* adds **python** support to `pyQode` (code completion,
 calltips, ...).
 
+.. _OpenSesame: https://osdoc.cogsci.nl/
+.. _Rapunzel: https://rapunzel.cogsci.nl/
 
 Features:
 ---------
 
-* calltips mode (using `Jedi`_)
-* code completion provider (using `Jedi`_)
+* calltips mode (using `Jedi`)
+* code completion provider (using `Jedi`)
 * code folding mode
 * auto indent mode
 * on the fly code checkers (frosted (fork of PyFlakes), PEP8)
