@@ -188,38 +188,38 @@ class PyAutoIndentMode(AutoIndentMode):
             '{': (CLOSE, BRACE)
         }
         while ln >= 0 and tc.block().text().strip():
-            tc_trav.movePosition(tc_trav.StartOfLine, tc_trav.MoveAnchor)
+            tc_trav.movePosition(tc_trav.StartOfBlock, tc_trav.MoveAnchor)
             lists = get_block_symbol_data(self.editor, tc_trav.block())
             all_symbols = []
             for symbols in lists:
                 all_symbols += [s for s in symbols]
             symbols = sorted(all_symbols, key=lambda x: x.position)
             for paren in reversed(symbols):
-                if paren.position < column:
-                    if self._is_paren_open(paren):
-                        if paren.position > column:
-                            continue
-                        else:
-                            pos = tc_trav.position() + paren.position
-                            char = paren.character
-                            # ensure it does not have a closing paren on
-                            # the same line
-                            tc3 = QTextCursor(tc)
-                            tc3.setPosition(pos)
-                            try:
-                                ch, ch_type = mapping[paren.character]
-                                l, c = self.editor.modes.get(
-                                    SymbolMatcherMode).symbol_pos(
-                                    tc3, ch, ch_type)
-                            except KeyError:
-                                continue
-                            if l == ln and c < column:
-                                continue
-                            return pos, char
+                if paren.position >= column:
+                    continue
+                if not self._is_paren_open(paren):
+                    continue
+                pos = tc_trav.position() + paren.position
+                char = paren.character
+                # ensure it does not have a closing paren on the same line
+                # before the cursor position
+                tc3 = QTextCursor(tc)
+                tc3.setPosition(pos)
+                try:
+                    ch, ch_type = mapping[paren.character]
+                    l, c = self.editor.modes.get(
+                        SymbolMatcherMode
+                    ).symbol_pos(tc3, ch, ch_type, block_position=True)
+                except KeyError:
+                    continue
+                if l == ln and c < column:
+                    continue
+                return pos, char
             # check previous line
             tc_trav.movePosition(tc_trav.Up, tc_trav.MoveAnchor)
+            ln_prev = ln
             ln = tc_trav.blockNumber()
-            column = len(self._helper.line_text(ln))
+            lumn = len(self._helper.line_text(ln))
         return pos, char
 
     def _get_paren_pos(self, tc, column):
