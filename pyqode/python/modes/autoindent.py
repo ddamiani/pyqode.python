@@ -179,8 +179,8 @@ class PyAutoIndentMode(AutoIndentMode):
 
     def _get_first_open_paren(self, tc, column):
         pos = None
-        char = None
-        ln = tc.blockNumber()
+        char = None        
+        orig_ln = ln = tc.blockNumber()
         tc_trav = QTextCursor(tc)
         mapping = {
             '(': (CLOSE, PAREN),
@@ -189,13 +189,19 @@ class PyAutoIndentMode(AutoIndentMode):
         }
         while ln >= 0 and tc.block().text().strip():
             tc_trav.movePosition(tc_trav.StartOfBlock, tc_trav.MoveAnchor)
-            lists = get_block_symbol_data(self.editor, tc_trav.block())
+            lists = get_block_symbol_data(
+                self.editor,
+                tc_trav.block(),
+                closing=False
+            )
             all_symbols = []
             for symbols in lists:
                 all_symbols += [s for s in symbols]
             symbols = sorted(all_symbols, key=lambda x: x.position)
             for paren in reversed(symbols):
-                if paren.position >= column:
+                # Ignore opening parenthesis that follow the current column on
+                # the curent line
+                if orig_ln == ln and paren.position >= column:
                     continue
                 if not self._is_paren_open(paren):
                     continue
