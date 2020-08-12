@@ -4,6 +4,7 @@
 This setup script packages pyqode.python
 """
 import sys
+import os
 from setuptools import setup, find_packages
 from pyqode.python import __version__
 from setuptools.command.test import test as TestCommand
@@ -53,18 +54,19 @@ def readme():
     return str(open('README.rst').read())
 
 
+pypi_release = os.environ.get('PYPI_RELEASE', 0)
+
 # get requirements
 requirements = [
     'pyqode.qt',
-    'pyqode.core',
+    'pyqode3.core' if pypi_release else 'pyqode.core',
     'jedi',
     'pycodestyle',
     'pyflakes',
     'docutils'
 ]
-
 setup(
-    name='pyqode.python',
+    name='pyqode3.python' if pypi_release else 'pyqode.python',
     namespace_packages=['pyqode'],
     version=__version__,
     packages=[p for p in find_packages() if 'test' not in p],
