@@ -7,8 +7,7 @@ import ast
 import textwrap
 import autopep8
 from pyqode.core.api.mode import Mode
-from pyqode.qt import QtGui
-from pyqode.qt import QtCore
+from pyqode.qt import QtGui, QtCore, QtWidgets
 
 
 RETURN_KEYS = (QtCore.Qt.Key_Return, QtCore.Qt.Key_Enter)
@@ -24,16 +23,41 @@ class AutoPEP8(Mode):
 
     def __init__(self, lookbehind=1, **options):
 
+        super(AutoPEP8, self).__init__()
         self._lookbehind = lookbehind
         self._options = options
-        super(AutoPEP8, self).__init__()
+        self._format_action = QtWidgets.QAction(
+            'Format code (AutoPEP8)',
+            self.editor
+        )
 
     def on_state_changed(self, state):
 
         if state:
             self.editor.key_pressed.connect(self._on_key_pressed)
+            self.editor.add_action(self._format_action, sub_menu='Python')
+            self._format_action.triggered.connect(self._format_code)
         else:
             self.editor.key_pressed.disconnect(self._on_key_pressed)
+            self.editor.remove_action(self._format_action, sub_menu='Python')
+            self._format_action.triggered.disconnect(self._format_code)
+
+    def _format_code(self):
+        
+        tc = self.editor.textCursor()
+        if tc.hasSelection():
+            code = tc.selectedText()
+        else:
+            code = self.editor.toPlainText()
+        code = autopep8.fix_code(
+            code.replace(u'\u2029', u'\n'),
+            options=self._options
+        )
+        if tc.hasSelection():
+            tc.insertText(code)
+            self.editor.setTextCursor(tc)
+        else:
+            self.editor.setPlainText(code)
 
     def _on_key_pressed(self, event):
 
@@ -51,11 +75,10 @@ class AutoPEP8(Mode):
         # lines is reached (lookbehind). Empty lines are not cleaned.
         tc.movePosition(tc.StartOfBlock, tc.KeepAnchor)
         for lookbehind in range(self._lookbehind):
-            tc.movePosition(tc.PreviousBlock, tc.KeepAnchor)
             indentation, code = self._dedent(
                 tc.selectedText().replace(u'\u2029', u'\n')
             )
-            if code.isspace():  # Ignore empty lines
+            if not code.strip():  # Ignore empty lines
                 return
             # If the first line ends with a colon, then it's not valid Python 
             # but we still fix it.
@@ -64,7 +87,7 @@ class AutoPEP8(Mode):
             try:
                 ast.parse(code)
             except SyntaxError:
-                continue
+                tc.movePosition(tc.PreviousBlock, tc.KeepAnchor)
             else:
                 break
         else:
