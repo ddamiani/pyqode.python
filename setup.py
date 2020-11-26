@@ -63,7 +63,8 @@ requirements = [
     'jedi',
     'pycodestyle',
     'pyflakes',
-    'docutils'
+    'docutils',
+    'autopep8'
 ]
 setup(
     name='pyqode3.python' if pypi_release else 'pyqode.python',
