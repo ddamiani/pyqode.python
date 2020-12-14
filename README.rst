@@ -22,6 +22,7 @@ Features:
 * on the fly code checkers (frosted (fork of PyFlakes), PEP8)
 * a customisable python specific syntax highlighter
 * a pre-configured QPythonCodeEdit (with the corresponding Qt Designer plugin)
+* automatic PEP8 formatting
 
 License
 -------
@@ -39,3 +40,4 @@ pyqode.python depends on the following libraries:
 - pep8
 - frosted
 - docutils
+- autopep8
