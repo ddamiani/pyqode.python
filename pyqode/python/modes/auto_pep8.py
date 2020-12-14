@@ -68,6 +68,13 @@ class AutoPEP8(Mode):
             tc.hasSelection()
         ):
             return
+        # Check if the line is preceded by an opening parenthesis that wasn't
+        # closed in the previous lines, limited by lookbehind
+        tc.movePosition(tc.PreviousBlock, tc.KeepAnchor, n=self._lookbehind)
+        code = tc.selectedText()
+        if code.rfind('(') > code.rfind(')'):
+            return
+        tc = self.editor.textCursor()  # New cursor to undo previous selection
         # We first get the previous line, dedent it, check if either ends with 
         # colon or is valid Python code. If so, the code is cleaned. If not, 
         # we get the previous two lines, dedent them, check if it's valid 
