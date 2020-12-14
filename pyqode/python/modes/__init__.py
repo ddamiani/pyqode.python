@@ -17,7 +17,7 @@ from .goto_assignements import GoToAssignmentsMode
 from .indenter import PyIndenterMode
 from .sh import PythonSH
 from .pep8_checker import PEP8CheckerMode
-from .AutoPEP8 import AutoPEP8
+from .auto_pep8 import AutoPEP8
 
 
 try:
