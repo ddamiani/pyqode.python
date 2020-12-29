@@ -69,16 +69,17 @@ class AutoPEP8(Mode):
         ):
             return
         # Check if the line is preceded by an opening parenthesis that wasn't
-        # closed in the previous lines, limited by lookbehind
+        # closed in the previous lines, limited by lookbehind. Also if the line
+        # ends with a comma, then the line is not finished.
         tc.movePosition(tc.PreviousBlock, tc.KeepAnchor, n=self._lookbehind)
         code = tc.selectedText()
-        if code.rfind('(') > code.rfind(')'):
+        if code.rfind('(') > code.rfind(')') or code.strip().endswith(','):
             return
         tc = self.editor.textCursor()  # New cursor to undo previous selection
-        # We first get the previous line, dedent it, check if either ends with 
-        # colon or is valid Python code. If so, the code is cleaned. If not, 
-        # we get the previous two lines, dedent them, check if it's valid 
-        # Python and if so, clean it. And so on, until the maximum number of 
+        # We first get the previous line, dedent it, check if either ends with
+        # colon or is valid Python code. If so, the code is cleaned. If not,
+        # we get the previous two lines, dedent them, check if it's valid
+        # Python and if so, clean it. And so on, until the maximum number of
         # lines is reached (lookbehind). Empty lines are not cleaned.
         tc.movePosition(tc.StartOfBlock, tc.KeepAnchor)
         for lookbehind in range(self._lookbehind):
@@ -87,7 +88,7 @@ class AutoPEP8(Mode):
             )
             if not code.strip():  # Ignore empty lines
                 return
-            # If the first line ends with a colon, then it's not valid Python 
+            # If the first line ends with a colon, then it's not valid Python
             # but we still fix it.
             if not lookbehind and code.rstrip().endswith(':'):
                 break
