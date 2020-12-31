@@ -321,7 +321,8 @@ class JediCompletionProvider:
     """
 
     @staticmethod
-    def complete(code, line, column, path, encoding, prefix):
+    def complete(code, line, column, path, encoding, prefix,
+                 triggered_by_symbol):
         """
         Completes python code using `jedi`_.
 
