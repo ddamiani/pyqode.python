@@ -27,29 +27,13 @@ class PythonFoldDetector(IndentFoldDetector):
         return txt
 
     def _handle_docstrings(self, block, lvl, prev_block):
-        if block.docstring:
-            is_start = block.text().strip().startswith('"""')
-            if is_start:
-                TextBlockHelper.get_fold_lvl(prev_block) + 1
-            else:
-                pblock = block.previous()
-                while pblock.isValid() and pblock.text().strip() == '':
-                    pblock = pblock.previous()
-                is_start = pblock.text().strip().startswith('"""')
-                if is_start:
-                    return TextBlockHelper.get_fold_lvl(pblock) + 1
-                else:
-                    return TextBlockHelper.get_fold_lvl(pblock)
-        # fix end of docstring
-        elif prev_block and prev_block.text().strip().endswith('"""'):
-            single_line = self._single_line_docstring.match(
-                prev_block.text().strip())
-            if single_line:
-                TextBlockHelper.set_fold_lvl(prev_block, lvl)
-            else:
-                TextBlockHelper.set_fold_lvl(
-                    prev_block, TextBlockHelper.get_fold_lvl(
-                        prev_block.previous()))
+        # Increase the block level for all except the first block of a
+        # docstring.
+        if (
+            block.docstring and
+            prev_block in self.editor.syntax_highlighter.docstrings
+        ):
+            return lvl + 1
         return lvl
 
     def _handle_imports(self, block, lvl, prev_block):
