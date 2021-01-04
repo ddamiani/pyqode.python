@@ -2,7 +2,7 @@
 This module contains the python code fold detector.
 """
 import re
-from pyqode.core.api import IndentFoldDetector, TextBlockHelper, TextHelper
+from pyqode.core.api import IndentFoldDetector, TextBlockHelper
 
 
 class PythonFoldDetector(IndentFoldDetector):
@@ -67,3 +67,22 @@ class PythonFoldDetector(IndentFoldDetector):
         lvl = self._handle_docstrings(block, lvl, prev_block)
         lvl = self._handle_imports(block, lvl, prev_block)
         return lvl
+    
+    def _three_quotes(self, block):
+        
+        return "'''" in block or '"""' in block
+
+    def require_rehighlight(self, from_block, to_block):
+        
+        if from_block is None or to_block is None:
+            return
+        # A highlight is required when a block is changed such that it now has
+        # three quotes, or now no longer has three quotes. Because this changes
+        # the docstring status of the block, which can affect the folding
+        # structure of the entire document.
+        nr1, txt1 = from_block
+        nr2, txt2 = to_block
+        return (
+            nr1 == nr2 and
+            self._three_quotes(txt1) != self._three_quotes(txt2)
+        )
