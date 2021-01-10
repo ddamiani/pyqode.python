@@ -53,16 +53,39 @@ class PyIndenterMode(IndenterMode):
         """
         Performs an un-indentation
         """
-        if self.tab_always_indent:
-            cursor = self.editor.textCursor()
-            cursor.beginEditBlock()
-            if not cursor.hasSelection():
-                cursor.select(cursor.LineUnderCursor)
-            self.unindent_selection(cursor)
-            cursor.endEditBlock()
-            self.editor.setTextCursor(cursor)
-        else:
+        if not self.tab_always_indent:
             super(PyIndenterMode, self).unindent()
+            return
+        cursor = self.editor.textCursor()
+        cursor.beginEditBlock()
+        if cursor.hasSelection():
+            self.unindent_selection(cursor)
+        else:
+            final_cursor_position = cursor.position()
+            start_of_block = cursor.block().position()
+            cursor.movePosition(cursor.StartOfBlock, cursor.MoveAnchor)
+            if self.editor.use_spaces_instead_of_tabs:
+                for _ in range(self.editor.tab_length):
+                    cursor.movePosition(
+                        cursor.NextCharacter,
+                        cursor.KeepAnchor
+                    )
+                    if cursor.selectedText() == ' ':
+                        cursor.removeSelectedText()
+                        final_cursor_position -= 1
+            else:
+                cursor.movePosition(
+                    cursor.NextCharacter,
+                    cursor.KeepAnchor
+                )
+                if cursor.selectedText() == '\t':
+                    cursor.removeSelectedText()
+                    final_cursor_position -= 1
+            cursor.clearSelection()
+            # Move the cursor back but not to the previous line
+            cursor.setPosition(max(final_cursor_position, start_of_block))
+        cursor.endEditBlock()
+        self.editor.setTextCursor(cursor)
 
     def clone_settings(self, original):
         self.tab_always_indent = original.tab_always_indent

@@ -222,6 +222,8 @@ class PyAutoIndentMode(AutoIndentMode):
                     continue
                 return pos, char
             # check previous line
+            if ln == 0:
+                break
             tc_trav.movePosition(tc_trav.Up, tc_trav.MoveAnchor)
             ln_prev = ln
             ln = tc_trav.blockNumber()
