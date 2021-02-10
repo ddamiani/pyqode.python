@@ -14,10 +14,10 @@ from .frosted_checker import PyFlakesChecker
 from .frosted_checker import PyFlakesChecker as FrostedCheckerMode
 from .goto_assignements import Assignment
 from .goto_assignements import GoToAssignmentsMode
-from .indenter import PyIndenterMode
 from .sh import PythonSH
 from .pep8_checker import PEP8CheckerMode
 from .auto_pep8 import AutoPEP8
+from pyqode.core.modes import IndenterMode as PyIndenterMode  # deprecated
 
 
 try:
