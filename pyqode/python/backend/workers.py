@@ -39,7 +39,7 @@ def calltips(request_data):
     encoding = 'utf-8'
     # use jedi to get call signatures
     try:
-        script = jedi.Script(code, line, column, path, encoding)
+        script = jedi.Script(code, path=path)
     except ValueError:
         # Is triggered when an the position is invalid, for example if the
         # column is larger or equal to the line length. This may be due to a
@@ -47,7 +47,7 @@ def calltips(request_data):
         # message, and does not seem to hve any adverse side effects.
         return []
     try:
-        signatures = script.call_signatures()
+        signatures = script.get_signatures(line, column)
     except ValueError:
         # Similar to the message above. Apparently some errors occur only at
         # this point.
@@ -70,18 +70,12 @@ def goto_assignments(request_data):
     line = request_data['line'] + 1
     column = request_data['column']
     path = request_data['path']
-    # encoding = request_data['encoding']
     encoding = 'utf-8'
-    script = jedi.Script(code, line, column, path, encoding)
-    try:
-        definitions = script.goto_assignments()
-    except jedi.NotFoundError:
-        pass
-    else:
-        ret_val = [(d.module_path, d.line - 1 if d.line else None,
-                    d.column, d.full_name)
-                   for d in definitions]
-        return ret_val
+    script = jedi.Script(code, path=path)
+    ret_val = [(d.module_path, d.line - 1 if d.line else None,
+                d.column, d.full_name)
+               for d in definitions]
+    return ret_val
 
 
 _old_definitions = {}
@@ -121,8 +115,8 @@ def defined_names(request_data):
     global _old_definitions
     ret_val = []
     path = request_data['path']
-    toplvl_definitions = jedi.names(
-        request_data['code'], path, 'utf-8')
+    script = jedi.Script(request_data['code'], path=path)
+    toplvl_definitions = script.get_names()
     for d in toplvl_definitions:
         definition = _extract_def(d, path)
         if d.type != 'import':
@@ -139,16 +133,10 @@ def quick_doc(request_data):
     line = request_data['line'] + 1
     column = request_data['column']
     path = request_data['path']
-    # encoding = 'utf-8'
-    encoding = 'utf-8'
-    script = jedi.Script(code, line, column, path, encoding)
-    try:
-        definitions = script.goto_definitions()
-    except jedi.NotFoundError:
-        return []
-    else:
-        ret_val = [d.docstring() for d in definitions]
-        return ret_val
+    script = jedi.Script(code, path=path)
+    definitions = script.goto(line, column)
+    ret_val = [d.docstring() for d in definitions]
+    return ret_val
 
 
 def run_pep8(request_data):
@@ -330,8 +318,8 @@ class JediCompletionProvider:
         """
         ret_val = []
         try:
-            script = jedi.Script(code, line + 1, column, path, encoding)
-            completions = script.completions()
+            script = jedi.Script(code, path=path)
+            completions = script.complete(line + 1, column)
         except (RuntimeError, TypeError, AttributeError):
             completions = []
         for completion in completions:
