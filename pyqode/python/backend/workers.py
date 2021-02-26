@@ -278,6 +278,7 @@ def icon_from_typename(name, icon_type):
         'PARAM-PROT': ICON_VAR,
         'FUNCTION': ICON_FUNC,
         'DEF': ICON_FUNC,
+        'PROPERTY': ICON_FUNC,
         'FUNCTION-PRIV': ICON_FUNC_PRIVATE,
         'FUNCTION-PROT': ICON_FUNC_PROTECTED
     }
