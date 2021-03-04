@@ -11,6 +11,45 @@ from pyqode.core.share import Definition
 from pyflakes import messages
 
 
+class JediNewScriptAPI:
+    """Maps the new Jedi API onto the old one."""
+    def __init__(self, code, path):
+        self._code = code
+        self._path = path
+        self._script = None
+        
+    def _get_script(self, line, column):
+        if self._script is None:
+            self._script = jedi.Script(
+                self._code,
+                line,
+                column,
+                self._path,
+                'utf-8'
+            )
+        return self._script
+    
+    def get_signatures(self, line, column):
+        return self._get_script(line, column).call_signatures()
+    
+    def get_names(self):
+        return jedi.names(self._code, self._path, 'utf-8')
+    
+    def goto(self, line, column):
+        return self._get_script(line, column).goto_definitions()
+    
+    def complete(self, line, column):
+        return self._get_script(line, column).completions()
+
+
+try:
+    jedi.Script.complete
+except AttributeError:  # API changed in 0.16.0
+    JediScript = JediNewScriptAPI
+else:
+    JediScript = jedi.Script
+    
+    
 def _logger():
     """
      Returns the module's logger
@@ -39,7 +78,7 @@ def calltips(request_data):
     encoding = 'utf-8'
     # use jedi to get call signatures
     try:
-        script = jedi.Script(code, path=path)
+        script = JediScript(code, path=path)
     except ValueError:
         # Is triggered when an the position is invalid, for example if the
         # column is larger or equal to the line length. This may be due to a
@@ -71,7 +110,7 @@ def goto_assignments(request_data):
     column = request_data['column']
     path = request_data['path']
     encoding = 'utf-8'
-    script = jedi.Script(code, path=path)
+    script = JediScript(code, path=path)
     ret_val = [(d.module_path, d.line - 1 if d.line else None,
                 d.column, d.full_name)
                for d in definitions]
@@ -115,7 +154,7 @@ def defined_names(request_data):
     global _old_definitions
     ret_val = []
     path = request_data['path']
-    script = jedi.Script(request_data['code'], path=path)
+    script = JediScript(request_data['code'], path=path)
     toplvl_definitions = script.get_names()
     for d in toplvl_definitions:
         definition = _extract_def(d, path)
@@ -133,7 +172,7 @@ def quick_doc(request_data):
     line = request_data['line'] + 1
     column = request_data['column']
     path = request_data['path']
-    script = jedi.Script(code, path=path)
+    script = JediScript(code, path=path)
     definitions = script.goto(line, column)
     ret_val = [d.docstring() for d in definitions]
     return ret_val
@@ -319,7 +358,7 @@ class JediCompletionProvider:
         """
         ret_val = []
         try:
-            script = jedi.Script(code, path=path)
+            script = JediScript(code, path=path)
             completions = script.complete(line + 1, column)
         except (RuntimeError, TypeError, AttributeError):
             completions = []
