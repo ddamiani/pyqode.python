@@ -71,6 +71,7 @@ class AutoPEP8(Mode):
         # Check if the line is preceded by an opening parenthesis that wasn't
         # closed in the previous lines, limited by lookbehind. Also if the line
         # ends with a comma, then the line is not finished.
+        tc.movePosition(tc.StartOfBlock)
         tc.movePosition(tc.PreviousBlock, tc.KeepAnchor, n=self._lookbehind)
         code = tc.selectedText()
         if code.rfind('(') > code.rfind(')') or code.strip().endswith(','):
