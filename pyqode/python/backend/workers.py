@@ -214,12 +214,14 @@ def run_pep8(request_data):
 
 
 PYFLAKES_ERROR_MESSAGES = [
-    messages.DoctestSyntaxError,
-    messages.ReturnWithArgsInsideGenerator,
-    messages.UndefinedExport,
-    messages.UndefinedName,
-    messages.UndefinedLocal
+    'DoctestSyntaxError',
+    'ReturnWithArgsInsideGenerator',
+    'UndefinedExport',
+    'UndefinedName',
+    'UndefinedLocal'
 ]
+PYFLAKES_ERROR_MESSAGES = [getattr(messages, x) for x in \
+                           PYFLAKES_ERROR_MESSAGES if hasattr(messages, x)]
 
 
 def run_pyflakes(request_data):
